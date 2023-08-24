@@ -1,4 +1,5 @@
 # This file was generated, do not modify it. # hide
+using CairoMakie, Makie.LaTeXStrings # hide
 __result = begin # hide
     using CairoMakie
 CairoMakie.activate!() # hide
