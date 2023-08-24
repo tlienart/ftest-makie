@@ -403,15 +403,10 @@ version = "1.16.1"
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[deps.FillArrays]]
-deps = ["LinearAlgebra", "Random"]
-git-tree-sha1 = "a20eaa3ad64254c61eeb5f230d9306e937405434"
+deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
+git-tree-sha1 = "048dd3d82558759476cff9cff999219216932a08"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "1.6.1"
-weakdeps = ["SparseArrays", "Statistics"]
-
-    [deps.FillArrays.extensions]
-    FillArraysSparseArraysExt = "SparseArrays"
-    FillArraysStatisticsExt = "Statistics"
+version = "1.6.0"
 
 [[deps.FiniteDiff]]
 deps = ["ArrayInterface", "LinearAlgebra", "Requires", "Setfield", "SparseArrays"]

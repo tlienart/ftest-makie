@@ -13,6 +13,30 @@
 
 <!-- Content appended here -->
 <div class="franklin-content"><h1 id="theming"><a href="#theming" class="header-anchor">Theming</a></h1>
+<pre><code class="language-julia">x &#61; -2pi:0.1:2pi
+approx &#61; fill&#40;0.0, length&#40;x&#41;&#41;
+cmap &#61; &#91;:gold, :deepskyblue3, :orangered, &quot;#e82051&quot;&#93;
+with_theme&#40;palette &#61; &#40;; patchcolor &#61; cgrad&#40;cmap, alpha&#61;0.45&#41;&#41;&#41; do
+    fig, axis, lineplot &#61; lines&#40;x, sin.&#40;x&#41;; label &#61; L&quot;&#36;\sin&#40;x&#41;&#36;&quot;, linewidth &#61; 3, color &#61; :black,
+        axis &#61; &#40;; title &#61; &quot;Polynomial approximation of sin&#40;x&#41;&quot;,
+            xgridstyle &#61; :dash, ygridstyle &#61; :dash,
+            xticksize &#61; 10, yticksize &#61; 10, xtickalign &#61; 1, ytickalign &#61; 1,
+            xticks &#61; &#40;-π:π/2:π, &#91;&quot;π&quot;, &quot;-π/2&quot;, &quot;0&quot;, &quot;π/2&quot;, &quot;π&quot;&#93;&#41;
+        &#41;&#41;
+    translate&#33;&#40;lineplot, 0, 0, 2&#41; # move line to foreground
+    band&#33;&#40;x, sin.&#40;x&#41;, approx .&#43;&#61; x; label &#61; L&quot;n &#61; 0&quot;&#41;
+    band&#33;&#40;x, sin.&#40;x&#41;, approx .&#43;&#61; -x .^ 3 / 6; label &#61; L&quot;n &#61; 1&quot;&#41;
+    band&#33;&#40;x, sin.&#40;x&#41;, approx .&#43;&#61; x .^ 5 / 120; label &#61; L&quot;n &#61; 2&quot;&#41;
+    band&#33;&#40;x, sin.&#40;x&#41;, approx .&#43;&#61; -x .^ 7 / 5040; label &#61; L&quot;n &#61; 3&quot;&#41;
+    limits&#33;&#40;-3.8, 3.8, -1.5, 1.5&#41;
+    axislegend&#40;; position &#61; :ct, bgcolor &#61; &#40;:white, 0.75&#41;, framecolor &#61; :orange&#41;
+    fig
+end</code></pre></p>
+<p>
+<a id="example_11351049267438190429">
+ <p><span style="color:red;">// Image matching '/assets/index/code/example_11351049267438190429.png' not found. //</span></p> 
+</a>
+
 <p>Makie allows you to change almost every visual aspect of your plots via attributes. You can set attributes whenever you create an object, or you define a general style that is then used as the default by all following objects.</p>
 <p>There are three functions you can use for that purpose:</p>
 <pre><code class="language-julia">set_theme&#33;
@@ -54,14 +78,6 @@ example_plot&#40;&#41;</code></pre></p>
 <h2 id="merge"><a href="#merge" class="header-anchor">merge</a></h2>
 <p>Themes often only affect part of the plot attributes. Therefore it is possible to combine themes to get their respective effects together.</p>
 <p>For example, you can combine the dark theme with the LaTeX fonts theme to have both the dark colors and uniform fonts.</p>
-<pre><code class="language-julia">dark_latexfonts &#61; merge&#40;theme_dark&#40;&#41;, theme_latexfonts&#40;&#41;&#41;
-set_theme&#33;&#40;dark_latexfonts&#41;
-example_plot&#40;&#41;</code></pre></p>
-<p>
-<a id="example_7337788990895075742">
- <p><span style="color:red;">// Image matching '/assets/index/code/example_7337788990895075742.png' not found. //</span></p> 
-</a>
-
 <h2 id="update_theme"><a href="#update_theme" class="header-anchor">update_theme&#33;</a></h2>
 <p>If you have activated a theme already and want to update it partially, without removing the attributes not in the new theme, you can use <code>update_theme&#33;</code>.</p>
 <p>For example, you can decide to change the text size after activating the dark and latex theme in the previous section.</p>
