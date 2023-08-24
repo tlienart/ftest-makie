@@ -25,6 +25,7 @@ function env_examplefigure(com, _)
 
     str = """
     ```julia:example_figure
+    using CairoMakie, Makie.LaTeXStrings # hide
     __result = begin # hide
         $code
     end # hide
