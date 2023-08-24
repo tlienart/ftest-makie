@@ -1,0 +1,5 @@
+```!
+using LaTeXStrings
+
+L"$\alpha$"
+```

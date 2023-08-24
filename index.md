@@ -1,5 +1,30 @@
 # Theming
 
+\begin{examplefigure}{}
+```julia
+x = -2pi:0.1:2pi
+approx = fill(0.0, length(x))
+cmap = [:gold, :deepskyblue3, :orangered, "#e82051"]
+with_theme(palette = (; patchcolor = cgrad(cmap, alpha=0.45))) do
+    fig, axis, lineplot = lines(x, sin.(x); label = L"$\sin(x)$", linewidth = 3, color = :black,
+        axis = (; title = "Polynomial approximation of sin(x)",
+            xgridstyle = :dash, ygridstyle = :dash,
+            xticksize = 10, yticksize = 10, xtickalign = 1, ytickalign = 1,
+            xticks = (-π:π/2:π, ["π", "-π/2", "0", "π/2", "π"])
+        ))
+    translate!(lineplot, 0, 0, 2) # move line to foreground
+    band!(x, sin.(x), approx .+= x; label = L"n = 0")
+    band!(x, sin.(x), approx .+= -x .^ 3 / 6; label = L"n = 1")
+    band!(x, sin.(x), approx .+= x .^ 5 / 120; label = L"n = 2")
+    band!(x, sin.(x), approx .+= -x .^ 7 / 5040; label = L"n = 3")
+    limits!(-3.8, 3.8, -1.5, 1.5)
+    axislegend(; position = :ct, bgcolor = (:white, 0.75), framecolor = :orange)
+    fig
+end
+```
+\end{examplefigure}
+
+
 Makie allows you to change almost every visual aspect of your plots via attributes.
 You can set attributes whenever you create an object, or you define a general style that is then used as the default by all following objects.
 
@@ -62,14 +87,14 @@ Themes often only affect part of the plot attributes. Therefore it is possible t
 
 For example, you can combine the dark theme with the LaTeX fonts theme to have both the dark colors and uniform fonts.
 
-\begin{examplefigure}{}
+<!-- \begin{examplefigure}{}
 ```julia
 using CairoMakie, Makie.LaTeXStrings # hide
 dark_latexfonts = merge(theme_dark(), theme_latexfonts())
 set_theme!(dark_latexfonts)
 example_plot()
 ```
-\end{examplefigure}
+\end{examplefigure} -->
 
 ## update_theme!
 
