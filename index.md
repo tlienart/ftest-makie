@@ -1,5 +1,6 @@
 # Theming
 
+
 \begin{examplefigure}{}
 ```julia
 x = -2pi:0.1:2pi

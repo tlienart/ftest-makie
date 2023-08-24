@@ -1,3 +1,5 @@
+using Makie.LaTeXStrings
+
 function env_examplefigure(com, _)
     content = Franklin.content(com)
     lang, ex_name, code = Franklin.parse_fenced_block(content, false)
