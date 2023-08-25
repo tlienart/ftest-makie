@@ -4,6 +4,7 @@
 \begin{examplefigure}{}
 ```julia
 using CairoMakie
+using Makie.LaTeXStrings
 
 x = -2pi:0.1:2pi
 approx = fill(0.0, length(x))

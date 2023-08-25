@@ -23,11 +23,16 @@ function env_examplefigure(com, _)
     pngsvec, _ = get!(Franklin.LOCAL_VARS, "examplefigures_png", String[] => Vector{String})
     push!(pngsvec, pngfile)
 
+    code_lines = split(code, '\n')
+    ui_lines = map(l -> startswith(l, r"(?:using|import)"), code_lines)
+    ui_code = join(code_lines[ui_lines], '\n')
+    rest_code = join(code_lines[.!ui_lines], '\n')
+
     str = """
     ```julia:example_figure
-    using Makie.LaTeXStrings: @L_str # hide
+    $ui_code
     __result = begin # hide
-        $code
+    $rest_code
     end # hide
     save(joinpath(@OUTPUT, "$pngfile"), __result; $rest_kwargs_str) # hide
     $(svg ? "save(joinpath(@OUTPUT, \"$svgfile\"), __result; $rest_kwargs_str) # hide" : "")
