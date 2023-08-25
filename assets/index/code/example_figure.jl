@@ -1,8 +1,7 @@
 # This file was generated, do not modify it. # hide
-using CairoMakie, Makie.LaTeXStrings # hide
+using Makie.LaTeXStrings: @L_str # hide
 __result = begin # hide
-    using CairoMakie
-CairoMakie.activate!() # hide
+    CairoMakie.activate!() # hide
 
 
 set_theme!() # hide
@@ -35,6 +34,6 @@ set_theme!() # hide
 
 f
 end # hide
-save(joinpath(@OUTPUT, "example_16429372083896061889.png"), __result; ) # hide
+save(joinpath(@OUTPUT, "example_13163899370740613802.png"), __result; ) # hide
 
 nothing # hide

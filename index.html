@@ -13,7 +13,9 @@
 
 <!-- Content appended here -->
 <div class="franklin-content"><h1 id="theming"><a href="#theming" class="header-anchor">Theming</a></h1>
-<pre><code class="language-julia">x &#61; -2pi:0.1:2pi
+<pre><code class="language-julia">using CairoMakie
+
+x &#61; -2pi:0.1:2pi
 approx &#61; fill&#40;0.0, length&#40;x&#41;&#41;
 cmap &#61; &#91;:gold, :deepskyblue3, :orangered, &quot;#e82051&quot;&#93;
 with_theme&#40;palette &#61; &#40;; patchcolor &#61; cgrad&#40;cmap, alpha&#61;0.45&#41;&#41;&#41; do
@@ -33,8 +35,8 @@ with_theme&#40;palette &#61; &#40;; patchcolor &#61; cgrad&#40;cmap, alpha&#61;0
     fig
 end</code></pre></p>
 <p>
-<a id="example_11351049267438190429">
- <img src="/ftest-makie/assets/index/code/output/example_11351049267438190429.png" alt=""> 
+<a id="example_119525871479737414">
+ <img src="/ftest-makie/assets/index/code/output/example_119525871479737414.png" alt=""> 
 </a>
 
 <p>Makie allows you to change almost every visual aspect of your plots via attributes. You can set attributes whenever you create an object, or you define a general style that is then used as the default by all following objects.</p>
@@ -45,9 +47,7 @@ with_theme</code></pre>
 <h2 id="set_theme"><a href="#set_theme" class="header-anchor">set_theme&#33;</a></h2>
 <p>You can call <code>set_theme&#33;&#40;theme; kwargs...&#41;</code> to change the current default theme to <code>theme</code> and override or add attributes given by <code>kwargs</code>. You can also reset your changes by calling <code>set_theme&#33;&#40;&#41;</code> without arguments.</p>
 <p>Let&#39;s create a plot with the default theme:</p>
-<pre><code class="language-julia">using CairoMakie
-
-function example_plot&#40;&#41;
+<pre><code class="language-julia">function example_plot&#40;&#41;
     f &#61; Figure&#40;&#41;
     for i in 1:2, j in 1:2
         lines&#40;f&#91;i, j&#93;, cumsum&#40;randn&#40;50&#41;&#41;&#41;
@@ -59,8 +59,8 @@ end
 
 example_plot&#40;&#41;</code></pre></p>
 <p>
-<a id="example_15436313006411093498">
- <img src="/ftest-makie/assets/index/code/output/example_15436313006411093498.png" alt=""> 
+<a id="example_10382542536148608780">
+ <img src="/ftest-makie/assets/index/code/output/example_10382542536148608780.png" alt=""> 
 </a>
 
 <p>Now we define a theme which changes the default fontsize, activate it, and plot.</p>
@@ -211,10 +211,7 @@ end</code></pre></p>
 <h3 id="manual_cycling_using_cycled"><a href="#manual_cycling_using_cycled" class="header-anchor">Manual cycling using <code>Cycled</code></a></h3>
 <p>If you want to give a plot&#39;s attribute a specific value from the respective cycler, you can use the <code>Cycled</code> object. The index <code>i</code> passed to <code>Cycled</code> is used directly to look up a value in the cycler that belongs to the attribute, and errors if no such cycler is defined. For example, to access the third color in a cycler, instead of plotting three plots to advance the cycler, you can use <code>color &#61; Cycled&#40;3&#41;</code>.</p>
 <p>The cycler&#39;s internal counter is not advanced when using <code>Cycled</code> for any attribute, and only attributes with <code>Cycled</code> access the cycled values, all other usually cycled attributes fall back to their non-cycled defaults.</p>
-<pre><code class="language-julia">using CairoMakie
-
-
-f &#61; Figure&#40;&#41;
+<pre><code class="language-julia">f &#61; Figure&#40;&#41;
 
 Axis&#40;f&#91;1, 1&#93;&#41;
 
@@ -230,17 +227,13 @@ lines&#33;&#40;0..10, x -&gt; sin&#40;x&#41; - 7, color &#61; Cycled&#40;1&#41;&
 
 f</code></pre></p>
 <p>
-<a id="example_13696346009214996682">
- <img src="/ftest-makie/assets/index/code/output/example_13696346009214996682.png" alt=""> 
+<a id="example_4120872256216269751">
+ <img src="/ftest-makie/assets/index/code/output/example_4120872256216269751.png" alt=""> 
 </a>
 
 <h3 id="palettes"><a href="#palettes" class="header-anchor">Palettes</a></h3>
 <p>The attributes specified in the cycle are looked up in the axis&#39; palette. A single <code>:color</code> is both plot attribute as well as palette attribute, while <code>:color &#61;&gt; :patchcolor</code> means that <code>plot.color</code> should be set to <code>palette.patchcolor</code>. Here&#39;s an example that shows how density plots react to different palette options:</p>
-<pre><code class="language-julia">using CairoMakie
-
-
-
-f &#61; Figure&#40;resolution &#61; &#40;800, 800&#41;&#41;
+<pre><code class="language-julia">f &#61; Figure&#40;resolution &#61; &#40;800, 800&#41;&#41;
 
 Axis&#40;f&#91;1, 1&#93;, title &#61; &quot;Default cycle palette&quot;&#41;
 
@@ -267,15 +260,15 @@ end
 
 f</code></pre></p>
 <p>
-<a id="example_16429372083896061889">
- <img src="/ftest-makie/assets/index/code/output/example_16429372083896061889.png" alt=""> 
+<a id="example_13163899370740613802">
+ <img src="/ftest-makie/assets/index/code/output/example_13163899370740613802.png" alt=""> 
 </a>
 
 <p>You can also theme global palettes via <code>set_theme&#33;&#40;palette &#61; &#40;color &#61; my_colors, marker &#61; my_markers&#41;&#41;</code> for example.</p>
 <h2 id="special_attributes"><a href="#special_attributes" class="header-anchor">Special attributes</a></h2>
 <p>You can use the keys <code>rowgap</code> and <code>colgap</code> to change the default grid layout gaps.</p>
 <div class="page-foot">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> . Last modified: August 24, 2023.
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> . Last modified: August 25, 2023.
     Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
 </div>
 </div><!-- CONTENT ENDS HERE -->
