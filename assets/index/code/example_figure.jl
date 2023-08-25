@@ -1,7 +1,6 @@
 # This file was generated, do not modify it. # hide
-using Makie.LaTeXStrings: @L_str # hide
 __result = begin # hide
-    CairoMakie.activate!() # hide
+CairoMakie.activate!() # hide
 
 
 set_theme!() # hide

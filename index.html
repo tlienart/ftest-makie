@@ -14,6 +14,7 @@
 <!-- Content appended here -->
 <div class="franklin-content"><h1 id="theming"><a href="#theming" class="header-anchor">Theming</a></h1>
 <pre><code class="language-julia">using CairoMakie
+using Makie.LaTeXStrings
 
 x &#61; -2pi:0.1:2pi
 approx &#61; fill&#40;0.0, length&#40;x&#41;&#41;
@@ -35,8 +36,8 @@ with_theme&#40;palette &#61; &#40;; patchcolor &#61; cgrad&#40;cmap, alpha&#61;0
     fig
 end</code></pre></p>
 <p>
-<a id="example_119525871479737414">
- <img src="/ftest-makie/assets/index/code/output/example_119525871479737414.png" alt=""> 
+<a id="example_17546036878766999940">
+ <img src="/ftest-makie/assets/index/code/output/example_17546036878766999940.png" alt=""> 
 </a>
 
 <p>Makie allows you to change almost every visual aspect of your plots via attributes. You can set attributes whenever you create an object, or you define a general style that is then used as the default by all following objects.</p>
