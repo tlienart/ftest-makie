@@ -3,6 +3,8 @@
 
 \begin{examplefigure}{}
 ```julia
+using CairoMakie
+
 x = -2pi:0.1:2pi
 approx = fill(0.0, length(x))
 cmap = [:gold, :deepskyblue3, :orangered, "#e82051"]
@@ -46,9 +48,7 @@ Let's create a plot with the default theme:
 
 \begin{examplefigure}{}
 ```julia
-using CairoMakie
 CairoMakie.activate!() # hide
-using Makie.LaTeXStrings # hide
 
 function example_plot()
     f = Figure()
@@ -265,7 +265,6 @@ The cycler's internal counter is not advanced when using `Cycled` for any attrib
 
 \begin{examplefigure}{}
 ```julia
-using CairoMakie
 CairoMakie.activate!() # hide
 
 
@@ -295,7 +294,6 @@ Here's an example that shows how density plots react to different palette option
 
 \begin{examplefigure}{}
 ```julia
-using CairoMakie
 CairoMakie.activate!() # hide
 
 
