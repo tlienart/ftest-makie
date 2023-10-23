@@ -7,269 +7,65 @@
    <link rel="stylesheet" href="/ftest-makie/libs/highlight/styles/github.min.css">
    
   <link rel="stylesheet" href="/ftest-makie/css/franklin.css">
-   <title>Theming</title>  
+   <title>Test printf</title>  
 </head>
 <body>
 
 <!-- Content appended here -->
-<div class="franklin-content"><h1 id="theming"><a href="#theming" class="header-anchor">Theming</a></h1>
-<pre><code class="language-julia">using CairoMakie
-using Makie.LaTeXStrings
+<div class="franklin-content"><h2 id="test_printf"><a href="#test_printf" class="header-anchor">Test printf</a></h2>
+<pre><code class="language-julia">using GMT, Printf
+@sprintf &quot;this is a &#37;s &#37;15.1f&quot; &quot;test&quot; 34.567</code></pre><pre><code class="plaintext code-output">"this is a test            34.6"</code></pre>
+<h2 id="test_case"><a href="#test_case" class="header-anchor">Test case</a></h2>
+<pre><code class="language-julia">using GMT, Printf
 
-x &#61; -2pi:0.1:2pi
-approx &#61; fill&#40;0.0, length&#40;x&#41;&#41;
-cmap &#61; &#91;:gold, :deepskyblue3, :orangered, &quot;#e82051&quot;&#93;
-with_theme&#40;palette &#61; &#40;; patchcolor &#61; cgrad&#40;cmap, alpha&#61;0.45&#41;&#41;&#41; do
-    fig, axis, lineplot &#61; lines&#40;x, sin.&#40;x&#41;; label &#61; L&quot;&#36;\sin&#40;x&#41;&#36;&quot;, linewidth &#61; 3, color &#61; :black,
-        axis &#61; &#40;; title &#61; &quot;Polynomial approximation of sin&#40;x&#41;&quot;,
-            xgridstyle &#61; :dash, ygridstyle &#61; :dash,
-            xticksize &#61; 10, yticksize &#61; 10, xtickalign &#61; 1, ytickalign &#61; 1,
-            xticks &#61; &#40;-π:π/2:π, &#91;&quot;π&quot;, &quot;-π/2&quot;, &quot;0&quot;, &quot;π/2&quot;, &quot;π&quot;&#93;&#41;
-        &#41;&#41;
-    translate&#33;&#40;lineplot, 0, 0, 2&#41; # move line to foreground
-    band&#33;&#40;x, sin.&#40;x&#41;, approx .&#43;&#61; x; label &#61; L&quot;n &#61; 0&quot;&#41;
-    band&#33;&#40;x, sin.&#40;x&#41;, approx .&#43;&#61; -x .^ 3 / 6; label &#61; L&quot;n &#61; 1&quot;&#41;
-    band&#33;&#40;x, sin.&#40;x&#41;, approx .&#43;&#61; x .^ 5 / 120; label &#61; L&quot;n &#61; 2&quot;&#41;
-    band&#33;&#40;x, sin.&#40;x&#41;, approx .&#43;&#61; -x .^ 7 / 5040; label &#61; L&quot;n &#61; 3&quot;&#41;
-    limits&#33;&#40;-3.8, 3.8, -1.5, 1.5&#41;
-    axislegend&#40;; position &#61; :ct, bgcolor &#61; &#40;:white, 0.75&#41;, framecolor &#61; :orange&#41;
-    fig
-end</code></pre></p>
-<p>
-<a id="example_17546036878766999940">
- <img src="/ftest-makie/assets/index/code/output/example_17546036878766999940.png" alt=""> 
-</a>
+pratt &#61; &#91;-142.65 56.25 400&#93;
 
-<p>Makie allows you to change almost every visual aspect of your plots via attributes. You can set attributes whenever you create an object, or you define a general style that is then used as the default by all following objects.</p>
-<p>There are three functions you can use for that purpose:</p>
-<pre><code class="language-julia">set_theme&#33;
-update_theme&#33;
-with_theme</code></pre>
-<h2 id="set_theme"><a href="#set_theme" class="header-anchor">set_theme&#33;</a></h2>
-<p>You can call <code>set_theme&#33;&#40;theme; kwargs...&#41;</code> to change the current default theme to <code>theme</code> and override or add attributes given by <code>kwargs</code>. You can also reset your changes by calling <code>set_theme&#33;&#40;&#41;</code> without arguments.</p>
-<p>Let&#39;s create a plot with the default theme:</p>
-<pre><code class="language-julia">function example_plot&#40;&#41;
-    f &#61; Figure&#40;&#41;
-    for i in 1:2, j in 1:2
-        lines&#40;f&#91;i, j&#93;, cumsum&#40;randn&#40;50&#41;&#41;&#41;
-    end
-    Label&#40;f&#91;0, :&#93;, &quot;A simple example plot&quot;&#41;
-    Label&#40;f&#91;3, :&#93;, L&quot;Random walks &#36;x&#40;t_n&#41;&#36;&quot;&#41;
-    f
-end
+# First generate gravity image w/ shading, label Pratt, and draw a circle
+# of radius &#61; 200 km centered on Pratt.
+grav_cpt &#61; makecpt&#40;color&#61;:rainbow, range&#61;&#40;-60,60&#41;&#41;;
+grdimage&#40;&quot;@AK_gulf_grav.nc&quot;, shade&#61;:default, frame&#61;&#40;annot&#61;2,ticks&#61;1&#41;, proj&#61;:merc, figsize&#61;14, xshift&#61;3.8, yshift&#61;14.9&#41;
+coast&#33;&#40;region&#61;&quot;@AK_gulf_grav.nc&quot;, land&#61;:gray, shore&#61;:thinnest&#41;
+colorbar&#33;&#40;pos&#61;&#40;anchor&#61;:BC, offset&#61;&#40;0,1&#41;&#41;, xaxis&#61;&#40;annot&#61;20, ticks&#61;10&#41;, ylabel&#61;&quot;mGal&quot;&#41;
+text&#33;&#40;text_record&#40;pratt, &quot;Pratt&quot;&#41;, font&#61;&#40;12,&quot;Helvetica-Bold&quot;&#41;, justify&#61;:LB, offset&#61;&quot;8p&quot;&#41;
+plot&#33;&#40;pratt, marker&#61;&quot;E-&quot;, markerline&#61;:thinnest&#41;
 
-example_plot&#40;&#41;</code></pre></p>
-<p>
-<a id="example_10382542536148608780">
- <img src="/ftest-makie/assets/index/code/output/example_10382542536148608780.png" alt=""> 
-</a>
+# Then draw 10 mGal contours and overlay 50 mGal contour in green
+grdcontour&#33;&#40;&quot;@AK_gulf_grav.nc&quot;, cont&#61;20, frame&#61;&#40;axes&#61;:WSEn, annot&#61;2, ticks&#61;1&#41;, yshift&#61;-12.3&#41;
+# Save 50 mGal contours to individual files, then plot them
+grdcontour&#33;&#40;&quot;@AK_gulf_grav.nc&quot;, cont&#61;10, range&#61;&#40;49,51&#41;, dump&#61;&quot;sm_&#37;c.txt&quot;&#41;
+plot&#33;&#40;&quot;sm_C.txt&quot;, lw&#61;:thin, lc&#61;:green&#41;
+coast&#33;&#40;land&#61;:gray, shore&#61;:thinnest&#41;
+plot&#33;&#40;pratt, marker&#61;&quot;E-&quot;, markerline&#61;:thinnest&#41;
 
-<p>Now we define a theme which changes the default fontsize, activate it, and plot.</p>
-<pre><code class="language-julia">fontsize_theme &#61; Theme&#40;fontsize &#61; 10&#41;
-set_theme&#33;&#40;fontsize_theme&#41;
+# Now determine centers of each enclosed seamount &gt; 50 mGal but only plot
+# the ones within 200 km of Pratt seamount.
 
-example_plot&#40;&#41;</code></pre></p>
-<p>
-<a id="example_7533956801696249497">
- <img src="/ftest-makie/assets/index/code/output/example_7533956801696249497.png" alt=""> 
-</a>
+# First determine mean location of each closed contour and add it to the file centers.txt
+centers &#61; gmtspatial&#40;&quot;sm_C.txt&quot;, length&#61;true, colinfo&#61;:g&#41;
 
-<p>This theme will be active until we call <code>set_theme&#33;&#40;&#41;</code>.</p>
-<pre><code class="language-julia">set_theme&#33;&#40;&#41;</code></pre>
-<h2 id="merge"><a href="#merge" class="header-anchor">merge</a></h2>
-<p>Themes often only affect part of the plot attributes. Therefore it is possible to combine themes to get their respective effects together.</p>
-<p>For example, you can combine the dark theme with the LaTeX fonts theme to have both the dark colors and uniform fonts.</p>
-<h2 id="update_theme"><a href="#update_theme" class="header-anchor">update_theme&#33;</a></h2>
-<p>If you have activated a theme already and want to update it partially, without removing the attributes not in the new theme, you can use <code>update_theme&#33;</code>.</p>
-<p>For example, you can decide to change the text size after activating the dark and latex theme in the previous section.</p>
-<pre><code class="language-julia">update_theme&#33;&#40;fontsize&#61;30&#41;
-example_plot&#40;&#41;</code></pre></p>
-<p>
-<a id="example_11512660497138422823">
- <img src="/ftest-makie/assets/index/code/output/example_11512660497138422823.png" alt=""> 
-</a>
+# Only plot the ones within 200 km
+t &#61; gmtselect&#40;centers, C&#61;&#40;pratt,&quot;200k&quot;&#41;, colinfo&#61;:g&#41;
+plot&#33;&#40;t, marker&#61;:Circle, ms&#61;0.2, mc&#61;:red, MarkerLine&#61;:thinnest&#41;
+plot&#33;&#40;pratt, marker&#61;:Triangle, ms&#61;0.25, fill&#61;:yellow, MarkerLine&#61;:thinnest&#41;
 
-<h2 id="with_theme"><a href="#with_theme" class="header-anchor">with_theme</a></h2>
-<p>Because it can be tedious to remember to switch themes off which you need only temporarily, there&#39;s the function <code>with_theme&#40;f, theme&#41;</code> which handles the resetting for you automatically, even if you encounter an error while running <code>f</code>.</p>
-<pre><code class="language-julia">with_theme&#40;fontsize_theme&#41; do
-    example_plot&#40;&#41;
-end</code></pre></p>
-<p>
-<a id="example_11184476333562984739">
- <img src="/ftest-makie/assets/index/code/output/example_11184476333562984739.png" alt=""> 
-</a>
+# Then report the volume and area of these seamounts only
+# by masking out data outside the 200 km-radius circle
+# and then evaluate area/volume for the 50 mGal contour
 
-<p>You can also pass additional keywords to add or override attributes in your theme:</p>
-<pre><code class="language-julia">with_theme&#40;fontsize_theme, fontsize &#61; 25&#41; do
-    example_plot&#40;&#41;
-end</code></pre></p>
-<p>
-<a id="example_8677674264098145660">
- <img src="/ftest-makie/assets/index/code/output/example_8677674264098145660.png" alt=""> 
-</a>
+Gmask &#61; gmt&#40;string&#40;&quot;grdmath -R@AK_gulf_grav.nc &quot;, pratt&#91;1&#93;, &quot; &quot;, pratt&#91;2&#93;, &quot; SDIST &#61;&quot;&#41;&#41;
+Gmask &#61; grdclip&#40;Gmask, above&#61;&#40;200, NaN&#41;, below&#61;&#40;200, 1&#41;&#41;
+Gtmp &#61; gmt&#40;&quot;grdmath @AK_gulf_grav.nc ? MUL &#61;&quot;, Gmask&#41;;
+av   &#61; grdvolume&#40;Gtmp, cont&#61;50, unit&#61;:k&#41;;
 
-<h2 id="theming_plot_objects"><a href="#theming_plot_objects" class="header-anchor">Theming plot objects</a></h2>
-<p>You can theme plot objects by using their uppercase type names as a key in your theme.</p>
-<pre><code class="language-julia">lines_theme &#61; Theme&#40;
-    Lines &#61; &#40;
-        linewidth &#61; 4,
-        linestyle &#61; :dash,
-    &#41;
-&#41;
+T &#61; mat2ds&#40;&#91;@sprintf&#40;&quot;Volumes: &#37;d mGal\\264km@&#43;2@&#43;&quot;, av.data&#91;3&#93;&#41;
+    &quot;&quot;
+    @sprintf&#40;&quot;Areas: &#37;.2f km@&#43;2@&#43;&quot;, av.data&#91;2&#93;&#41;&#93;, hdr&#61;&quot;&gt; -149 52.5 14p 2.6i j&quot;&#41;
 
-with_theme&#40;example_plot, lines_theme&#41;</code></pre></p>
-<p>
-<a id="example_3908551913716021428">
- <img src="/ftest-makie/assets/index/code/output/example_3908551913716021428.png" alt=""> 
-</a>
-
-<h2 id="theming_block_objects"><a href="#theming_block_objects" class="header-anchor">Theming block objects</a></h2>
-<p>Every Block such as <code>Axis</code>, <code>Legend</code>, <code>Colorbar</code>, etc. can be themed by using its type name as a key in your theme.</p>
-<p>Here is how you could define a simple ggplot-like style for your axes:</p>
-<pre><code class="language-julia">ggplot_theme &#61; Theme&#40;
-    Axis &#61; &#40;
-        backgroundcolor &#61; :gray90,
-        leftspinevisible &#61; false,
-        rightspinevisible &#61; false,
-        bottomspinevisible &#61; false,
-        topspinevisible &#61; false,
-        xgridcolor &#61; :white,
-        ygridcolor &#61; :white,
-    &#41;
-&#41;
-
-with_theme&#40;example_plot, ggplot_theme&#41;</code></pre></p>
-<p>
-<a id="example_3726076456766619082">
- <img src="/ftest-makie/assets/index/code/output/example_3726076456766619082.png" alt=""> 
-</a>
-
-<h2 id="cycles"><a href="#cycles" class="header-anchor">Cycles</a></h2>
-<p>Makie supports a variety of options for cycling plot attributes automatically. For a plot object to use cycling, either its default theme or the currently active theme must have the <code>cycle</code> attribute set.</p>
-<p>There are multiple ways to specify this attribute:</p>
-<pre><code class="language-julia"># You can either make a list of symbols
-cycle &#61; &#91;:color, :marker&#93;
-# or map specific plot attributes to palette attributes
-cycle &#61; &#91;:linecolor &#61;&gt; :color, :marker&#93;
-# you can also map multiple attributes that should receive
-# the same cycle attribute
-cycle &#61; &#91;&#91;:linecolor, :markercolor&#93; &#61;&gt; :color, :marker&#93;
-# nothing disables cycling
-cycle &#61; nothing # equivalent to cycle &#61; &#91;&#93;</code></pre>
-<p>Notice that cycles must be given as attributes to a plot object, not the top-level theme &#40;because different plot objects can cycle different attributes, e.g., a density plot cannot cycle markers&#41;. This is exemplified in the following code blocks.</p>
-<pre><code class="language-julia">with_theme&#40;
-    Theme&#40;
-        palette &#61; &#40;color &#61; &#91;:red, :blue&#93;, marker &#61; &#91;:circle, :xcross&#93;&#41;,
-        Scatter &#61; &#40;cycle &#61; &#91;:color, :marker&#93;,&#41;
-    &#41;&#41; do
-    scatter&#40;fill&#40;1, 10&#41;&#41;
-    scatter&#33;&#40;fill&#40;2, 10&#41;&#41;
-    scatter&#33;&#40;fill&#40;3, 10&#41;&#41;
-    scatter&#33;&#40;fill&#40;4, 10&#41;&#41;
-    scatter&#33;&#40;fill&#40;5, 10&#41;&#41;
-    current_figure&#40;&#41;
-end</code></pre></p>
-<p>
-<a id="example_10010136445951996737">
- <img src="/ftest-makie/assets/index/code/output/example_10010136445951996737.png" alt=""> 
-</a>
-
-<h3 id="covarying_cycles"><a href="#covarying_cycles" class="header-anchor">Covarying cycles</a></h3>
-<p>You can also construct a <code>Cycle</code> object directly, which additionally allows to set the <code>covary</code> keyword, that defaults to <code>false</code>. A cycler with <code>covary &#61; true</code> cycles all attributes together, instead of cycling through all values of the first, then the second, etc.</p>
-<pre><code class="language-julia"># palettes: color &#61; &#91;:red, :blue, :green&#93; marker &#61; &#91;:circle, :rect, :utriangle, :dtriangle&#93;
-
-cycle &#61; &#91;:color, :marker&#93;
-# 1: :red, :circle
-# 2: :blue, :circle
-# 3: :green, :circle
-# 4: :red, :rect
-# ...
-
-cycle &#61; Cycle&#40;&#91;:color, :marker&#93;, covary &#61; true&#41;
-# 1: :red, :circle
-# 2: :blue, :rect
-# 3: :green, :utriangle
-# 4: :red, :dtriangle
-# ...</code></pre>
-<p>For example</p>
-<pre><code class="language-julia">with_theme&#40;
-    Theme&#40;
-        palette &#61; &#40;color &#61; &#91;:red, :blue&#93;, linestyle &#61; &#91;:dash, :dot&#93;&#41;,
-        Lines &#61; &#40;cycle &#61; Cycle&#40;&#91;:color, :linestyle&#93;, covary &#61; true&#41;,&#41;
-    &#41;&#41; do
-    lines&#40;fill&#40;5, 10&#41;&#41;
-    lines&#33;&#40;fill&#40;4, 10&#41;&#41;
-    lines&#33;&#40;fill&#40;3, 10&#41;&#41;
-    lines&#33;&#40;fill&#40;2, 10&#41;&#41;
-    lines&#33;&#40;fill&#40;1, 10&#41;&#41;
-    current_figure&#40;&#41;
-end</code></pre></p>
-<p>
-<a id="example_5591658949940755798">
- <img src="/ftest-makie/assets/index/code/output/example_5591658949940755798.png" alt=""> 
-</a>
-
-<h3 id="manual_cycling_using_cycled"><a href="#manual_cycling_using_cycled" class="header-anchor">Manual cycling using <code>Cycled</code></a></h3>
-<p>If you want to give a plot&#39;s attribute a specific value from the respective cycler, you can use the <code>Cycled</code> object. The index <code>i</code> passed to <code>Cycled</code> is used directly to look up a value in the cycler that belongs to the attribute, and errors if no such cycler is defined. For example, to access the third color in a cycler, instead of plotting three plots to advance the cycler, you can use <code>color &#61; Cycled&#40;3&#41;</code>.</p>
-<p>The cycler&#39;s internal counter is not advanced when using <code>Cycled</code> for any attribute, and only attributes with <code>Cycled</code> access the cycled values, all other usually cycled attributes fall back to their non-cycled defaults.</p>
-<pre><code class="language-julia">f &#61; Figure&#40;&#41;
-
-Axis&#40;f&#91;1, 1&#93;&#41;
-
-# the normal cycle
-lines&#33;&#40;0..10, x -&gt; sin&#40;x&#41; - 1&#41;
-lines&#33;&#40;0..10, x -&gt; sin&#40;x&#41; - 2&#41;
-lines&#33;&#40;0..10, x -&gt; sin&#40;x&#41; - 3&#41;
-
-# manually specified colors
-lines&#33;&#40;0..10, x -&gt; sin&#40;x&#41; - 5, color &#61; Cycled&#40;3&#41;&#41;
-lines&#33;&#40;0..10, x -&gt; sin&#40;x&#41; - 6, color &#61; Cycled&#40;2&#41;&#41;
-lines&#33;&#40;0..10, x -&gt; sin&#40;x&#41; - 7, color &#61; Cycled&#40;1&#41;&#41;
-
-f</code></pre></p>
-<p>
-<a id="example_4120872256216269751">
- <img src="/ftest-makie/assets/index/code/output/example_4120872256216269751.png" alt=""> 
-</a>
-
-<h3 id="palettes"><a href="#palettes" class="header-anchor">Palettes</a></h3>
-<p>The attributes specified in the cycle are looked up in the axis&#39; palette. A single <code>:color</code> is both plot attribute as well as palette attribute, while <code>:color &#61;&gt; :patchcolor</code> means that <code>plot.color</code> should be set to <code>palette.patchcolor</code>. Here&#39;s an example that shows how density plots react to different palette options:</p>
-<pre><code class="language-julia">f &#61; Figure&#40;resolution &#61; &#40;800, 800&#41;&#41;
-
-Axis&#40;f&#91;1, 1&#93;, title &#61; &quot;Default cycle palette&quot;&#41;
-
-for i in 1:6
-    density&#33;&#40;randn&#40;50&#41; .&#43; 2i&#41;
-end
-
-Axis&#40;f&#91;2, 1&#93;,
-    title &#61; &quot;Custom cycle palette&quot;,
-    palette &#61; &#40;patchcolor &#61; &#91;:red, :green, :blue, :yellow, :orange, :pink&#93;,&#41;&#41;
-
-for i in 1:6
-    density&#33;&#40;randn&#40;50&#41; .&#43; 2i&#41;
-end
-
-set_theme&#33;&#40;Density &#61; &#40;cycle &#61; &#91;&#93;,&#41;&#41;
-
-Axis&#40;f&#91;3, 1&#93;, title &#61; &quot;No cycle&quot;&#41;
-
-for i in 1:6
-    density&#33;&#40;randn&#40;50&#41; .&#43; 2i&#41;
-end
-
-
-f</code></pre></p>
-<p>
-<a id="example_13163899370740613802">
- <img src="/ftest-makie/assets/index/code/output/example_13163899370740613802.png" alt=""> 
-</a>
-
-<p>You can also theme global palettes via <code>set_theme&#33;&#40;palette &#61; &#40;color &#61; my_colors, marker &#61; my_markers&#41;&#41;</code> for example.</p>
-<h2 id="special_attributes"><a href="#special_attributes" class="header-anchor">Special attributes</a></h2>
-<p>You can use the keys <code>rowgap</code> and <code>colgap</code> to change the default grid layout gaps.</p>
+text&#33;&#40;T, paragraph&#61;true, fill&#61;:white, pen&#61;:thin, offset&#61;0.75, font&#61;&#40;14,&quot;Helvetica-Bold&quot;&#41;,
+      justify&#61;:LB, clearance&#61;0.25, show&#61;true&#41;</code></pre><pre><code class="plaintext code-output">Bad argument type (Tuple{Matrix{Float64}, String}) to option C
+</code></pre>
 <div class="page-foot">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> . Last modified: August 25, 2023.
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> . Last modified: October 23, 2023.
     Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
 </div>
 </div><!-- CONTENT ENDS HERE -->
