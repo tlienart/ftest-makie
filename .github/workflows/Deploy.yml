@@ -32,6 +32,8 @@ jobs:
     #   specific arguments, see the documentation or ?optimize in the REPL.
     - run: julia -e '
             using Pkg; Pkg.activate("."); Pkg.instantiate();
+            using GMT, Printf;
+            @sprintf "this is a %s %15.1f" "test" 34.567;
             using Franklin;
             optimize(minify=false, prerender=false)'
     - name: Build and Deploy

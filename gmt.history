@@ -1,0 +1,16 @@
+# GMT 6 Session common arguments shelf
+BEGIN GMT 6.5.0
+B	pxa20f10y+lmGal
+J	M
+JG	G0/0/15c
+JM	M14
+JX	X15c
+Jx	x1i
+JZ	Z15c
+R	@AK_gulf_grav.nc
+X	3.8
+Y	14.9
+Z	Z
+p	90/1.0e-5
+@L	3
+END

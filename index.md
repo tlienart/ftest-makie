@@ -1,337 +1,59 @@
-# Theming
+## Test printf
 
-
-\begin{examplefigure}{}
-```julia
-using CairoMakie
-using Makie.LaTeXStrings
-
-x = -2pi:0.1:2pi
-approx = fill(0.0, length(x))
-cmap = [:gold, :deepskyblue3, :orangered, "#e82051"]
-with_theme(palette = (; patchcolor = cgrad(cmap, alpha=0.45))) do
-    fig, axis, lineplot = lines(x, sin.(x); label = L"$\sin(x)$", linewidth = 3, color = :black,
-        axis = (; title = "Polynomial approximation of sin(x)",
-            xgridstyle = :dash, ygridstyle = :dash,
-            xticksize = 10, yticksize = 10, xtickalign = 1, ytickalign = 1,
-            xticks = (-π:π/2:π, ["π", "-π/2", "0", "π/2", "π"])
-        ))
-    translate!(lineplot, 0, 0, 2) # move line to foreground
-    band!(x, sin.(x), approx .+= x; label = L"n = 0")
-    band!(x, sin.(x), approx .+= -x .^ 3 / 6; label = L"n = 1")
-    band!(x, sin.(x), approx .+= x .^ 5 / 120; label = L"n = 2")
-    band!(x, sin.(x), approx .+= -x .^ 7 / 5040; label = L"n = 3")
-    limits!(-3.8, 3.8, -1.5, 1.5)
-    axislegend(; position = :ct, bgcolor = (:white, 0.75), framecolor = :orange)
-    fig
-end
-```
-\end{examplefigure}
-
-
-Makie allows you to change almost every visual aspect of your plots via attributes.
-You can set attributes whenever you create an object, or you define a general style that is then used as the default by all following objects.
-
-There are three functions you can use for that purpose:
-
-```julia
-set_theme!
-update_theme!
-with_theme
+```!
+using GMT, Printf
+@sprintf "this is a %s %15.1f" "test" 34.567
 ```
 
-## set_theme!
 
-You can call `set_theme!(theme; kwargs...)` to change the current default theme to `theme` and override or add attributes given by `kwargs`.
-You can also reset your changes by calling `set_theme!()` without arguments.
+## Test case
 
-Let's create a plot with the default theme:
+```!
+using GMT, Printf
 
-\begin{examplefigure}{}
-```julia
-CairoMakie.activate!() # hide
+pratt = [-142.65 56.25 400]
 
-function example_plot()
-    f = Figure()
-    for i in 1:2, j in 1:2
-        lines(f[i, j], cumsum(randn(50)))
-    end
-    Label(f[0, :], "A simple example plot")
-    Label(f[3, :], L"Random walks $x(t_n)$")
-    f
-end
+# First generate gravity image w/ shading, label Pratt, and draw a circle
+# of radius = 200 km centered on Pratt.
+grav_cpt = makecpt(color=:rainbow, range=(-60,60));
+grdimage("@AK_gulf_grav.nc", shade=:default, frame=(annot=2,ticks=1), proj=:merc, figsize=14, xshift=3.8, yshift=14.9)
+coast!(region="@AK_gulf_grav.nc", land=:gray, shore=:thinnest)
+colorbar!(pos=(anchor=:BC, offset=(0,1)), xaxis=(annot=20, ticks=10), ylabel="mGal")
+text!(text_record(pratt, "Pratt"), font=(12,"Helvetica-Bold"), justify=:LB, offset="8p")
+plot!(pratt, marker="E-", markerline=:thinnest)
 
-example_plot()
+# Then draw 10 mGal contours and overlay 50 mGal contour in green
+grdcontour!("@AK_gulf_grav.nc", cont=20, frame=(axes=:WSEn, annot=2, ticks=1), yshift=-12.3)
+# Save 50 mGal contours to individual files, then plot them
+grdcontour!("@AK_gulf_grav.nc", cont=10, range=(49,51), dump="sm_%c.txt")
+plot!("sm_C.txt", lw=:thin, lc=:green)
+coast!(land=:gray, shore=:thinnest)
+plot!(pratt, marker="E-", markerline=:thinnest)
+
+# Now determine centers of each enclosed seamount > 50 mGal but only plot
+# the ones within 200 km of Pratt seamount.
+
+# First determine mean location of each closed contour and add it to the file centers.txt
+centers = gmtspatial("sm_C.txt", length=true, colinfo=:g)
+
+# Only plot the ones within 200 km
+t = gmtselect(centers, C=(pratt,"200k"), colinfo=:g)
+plot!(t, marker=:Circle, ms=0.2, mc=:red, MarkerLine=:thinnest)
+plot!(pratt, marker=:Triangle, ms=0.25, fill=:yellow, MarkerLine=:thinnest)
+
+# Then report the volume and area of these seamounts only
+# by masking out data outside the 200 km-radius circle
+# and then evaluate area/volume for the 50 mGal contour
+
+Gmask = gmt(string("grdmath -R@AK_gulf_grav.nc ", pratt[1], " ", pratt[2], " SDIST ="))
+Gmask = grdclip(Gmask, above=(200, NaN), below=(200, 1))
+Gtmp = gmt("grdmath @AK_gulf_grav.nc ? MUL =", Gmask);
+av   = grdvolume(Gtmp, cont=50, unit=:k);
+
+T = mat2ds([@sprintf("Volumes: %d mGal\\264km@+2@+", av.data[3])
+    ""
+    @sprintf("Areas: %.2f km@+2@+", av.data[2])], hdr="> -149 52.5 14p 2.6i j")
+
+text!(T, paragraph=true, fill=:white, pen=:thin, offset=0.75, font=(14,"Helvetica-Bold"),
+      justify=:LB, clearance=0.25, show=true)
 ```
-\end{examplefigure}
-
-Now we define a theme which changes the default fontsize, activate it, and plot.
-
-\begin{examplefigure}{}
-```julia
-fontsize_theme = Theme(fontsize = 10)
-set_theme!(fontsize_theme)
-
-example_plot()
-```
-\end{examplefigure}
-
-This theme will be active until we call `set_theme!()`.
-
-```julia:set_theme
-set_theme!()
-```
-
-## merge
-
-Themes often only affect part of the plot attributes. Therefore it is possible to combine themes to get their respective effects together.
-
-For example, you can combine the dark theme with the LaTeX fonts theme to have both the dark colors and uniform fonts.
-
-<!-- \begin{examplefigure}{}
-```julia
-using CairoMakie, Makie.LaTeXStrings # hide
-dark_latexfonts = merge(theme_dark(), theme_latexfonts())
-set_theme!(dark_latexfonts)
-example_plot()
-```
-\end{examplefigure} -->
-
-## update_theme!
-
-If you have activated a theme already and want to update it partially, without removing the attributes not in the new theme, you can use `update_theme!`.
-
-For example, you can decide to change the text size after activating the dark and latex theme in the previous section.
-
-\begin{examplefigure}{}
-```julia
-update_theme!(fontsize=30)
-example_plot()
-```
-\end{examplefigure}
-
-## with_theme
-
-Because it can be tedious to remember to switch themes off which you need only temporarily, there's the function `with_theme(f, theme)` which handles the resetting for you automatically, even if you encounter an error while running `f`.
-
-\begin{examplefigure}{}
-```julia
-set_theme!() # hide
-with_theme(fontsize_theme) do
-    example_plot()
-end
-```
-\end{examplefigure}
-
-You can also pass additional keywords to add or override attributes in your theme:
-
-\begin{examplefigure}{}
-```julia
-with_theme(fontsize_theme, fontsize = 25) do
-    example_plot()
-end
-```
-\end{examplefigure}
-
-## Theming plot objects
-
-You can theme plot objects by using their uppercase type names as a key in your theme.
-
-\begin{examplefigure}{}
-```julia
-lines_theme = Theme(
-    Lines = (
-        linewidth = 4,
-        linestyle = :dash,
-    )
-)
-
-with_theme(example_plot, lines_theme)
-```
-\end{examplefigure}
-
-## Theming block objects
-
-Every Block such as `Axis`, `Legend`, `Colorbar`, etc. can be themed by using its type name as a key in your theme.
-
-Here is how you could define a simple ggplot-like style for your axes:
-
-\begin{examplefigure}{}
-```julia
-ggplot_theme = Theme(
-    Axis = (
-        backgroundcolor = :gray90,
-        leftspinevisible = false,
-        rightspinevisible = false,
-        bottomspinevisible = false,
-        topspinevisible = false,
-        xgridcolor = :white,
-        ygridcolor = :white,
-    )
-)
-
-with_theme(example_plot, ggplot_theme)
-```
-\end{examplefigure}
-
-## Cycles
-
-Makie supports a variety of options for cycling plot attributes automatically.
-For a plot object to use cycling, either its default theme or the currently active theme must have the `cycle` attribute set.
-
-There are multiple ways to specify this attribute:
-
-```julia
-# You can either make a list of symbols
-cycle = [:color, :marker]
-# or map specific plot attributes to palette attributes
-cycle = [:linecolor => :color, :marker]
-# you can also map multiple attributes that should receive
-# the same cycle attribute
-cycle = [[:linecolor, :markercolor] => :color, :marker]
-# nothing disables cycling
-cycle = nothing # equivalent to cycle = []
-```
-
-Notice that cycles must be given as attributes to a plot object, not the top-level theme
-(because different plot objects can cycle different attributes, e.g., a density plot
-cannot cycle markers). This is exemplified in the following code blocks.
-
-\begin{examplefigure}{}
-```julia
-with_theme(
-    Theme(
-        palette = (color = [:red, :blue], marker = [:circle, :xcross]),
-        Scatter = (cycle = [:color, :marker],)
-    )) do
-    scatter(fill(1, 10))
-    scatter!(fill(2, 10))
-    scatter!(fill(3, 10))
-    scatter!(fill(4, 10))
-    scatter!(fill(5, 10))
-    current_figure()
-end
-```
-\end{examplefigure}
-
-### Covarying cycles
-
-You can also construct a `Cycle` object directly, which additionally allows to set the `covary` keyword, that defaults to `false`.
-A cycler with `covary = true` cycles all attributes together, instead of cycling through all values of the first, then the second, etc.
-
-```julia
-# palettes: color = [:red, :blue, :green] marker = [:circle, :rect, :utriangle, :dtriangle]
-
-cycle = [:color, :marker]
-# 1: :red, :circle
-# 2: :blue, :circle
-# 3: :green, :circle
-# 4: :red, :rect
-# ...
-
-cycle = Cycle([:color, :marker], covary = true)
-# 1: :red, :circle
-# 2: :blue, :rect
-# 3: :green, :utriangle
-# 4: :red, :dtriangle
-# ...
-```
-
-For example
-
-\begin{examplefigure}{}
-```julia
-with_theme(
-    Theme(
-        palette = (color = [:red, :blue], linestyle = [:dash, :dot]),
-        Lines = (cycle = Cycle([:color, :linestyle], covary = true),)
-    )) do
-    lines(fill(5, 10))
-    lines!(fill(4, 10))
-    lines!(fill(3, 10))
-    lines!(fill(2, 10))
-    lines!(fill(1, 10))
-    current_figure()
-end
-```
-\end{examplefigure}
-
-### Manual cycling using `Cycled`
-
-If you want to give a plot's attribute a specific value from the respective cycler, you can use the `Cycled` object.
-The index `i` passed to `Cycled` is used directly to look up a value in the cycler that belongs to the attribute, and errors if no such cycler is defined.
-For example, to access the third color in a cycler, instead of plotting three plots to advance the cycler, you can use `color = Cycled(3)`.
-
-The cycler's internal counter is not advanced when using `Cycled` for any attribute, and only attributes with `Cycled` access the cycled values, all other usually cycled attributes fall back to their non-cycled defaults.
-
-\begin{examplefigure}{}
-```julia
-CairoMakie.activate!() # hide
-
-
-f = Figure()
-
-Axis(f[1, 1])
-
-# the normal cycle
-lines!(0..10, x -> sin(x) - 1)
-lines!(0..10, x -> sin(x) - 2)
-lines!(0..10, x -> sin(x) - 3)
-
-# manually specified colors
-lines!(0..10, x -> sin(x) - 5, color = Cycled(3))
-lines!(0..10, x -> sin(x) - 6, color = Cycled(2))
-lines!(0..10, x -> sin(x) - 7, color = Cycled(1))
-
-f
-```
-\end{examplefigure}
-
-### Palettes
-
-The attributes specified in the cycle are looked up in the axis' palette.
-A single `:color` is both plot attribute as well as palette attribute, while `:color => :patchcolor` means that `plot.color` should be set to `palette.patchcolor`.
-Here's an example that shows how density plots react to different palette options:
-
-\begin{examplefigure}{}
-```julia
-CairoMakie.activate!() # hide
-
-
-set_theme!() # hide
-
-f = Figure(resolution = (800, 800))
-
-Axis(f[1, 1], title = "Default cycle palette")
-
-for i in 1:6
-    density!(randn(50) .+ 2i)
-end
-
-Axis(f[2, 1],
-    title = "Custom cycle palette",
-    palette = (patchcolor = [:red, :green, :blue, :yellow, :orange, :pink],))
-
-for i in 1:6
-    density!(randn(50) .+ 2i)
-end
-
-set_theme!(Density = (cycle = [],))
-
-Axis(f[3, 1], title = "No cycle")
-
-for i in 1:6
-    density!(randn(50) .+ 2i)
-end
-
-set_theme!() # hide
-
-f
-```
-\end{examplefigure}
-
-You can also theme global palettes via `set_theme!(palette = (color = my_colors, marker = my_markers))` for example.
-
-## Special attributes
-
-You can use the keys `rowgap` and `colgap` to change the default grid layout gaps.
